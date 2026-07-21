@@ -3,7 +3,7 @@ import time
 import sys
 
 # ── Config ────────────────────────────────────────────────
-FRAME_DELAY = 0.15   # seconds between frames
+FRAME_DELAY = 0.21   # seconds between frames
 LOOP = True          # set False to play once and stop
 
 def clear():
