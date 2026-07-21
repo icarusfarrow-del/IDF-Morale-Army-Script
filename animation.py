@@ -1,23 +1,30 @@
 import os
 import time
 import sys
+ 
 
-# ── Config ────────────────────────────────────────────────
-FRAME_DELAY = 0.21   # seconds between frames
-LOOP = True          # set False to play once and stop
-
-def clear():
+BPM = 139
+BEAT = 60 / BPM                
+VERSE_DELAY = BEAT / 2         
+CHORUS_DELAY = BEAT / 4        
+ 
+TRACK_LENGTH_SECONDS = None    
+                               
+ 
+os.system('')  # enables ANSI escape handling in Windows cmd.exe
+ 
+def redraw(frame):
+    # Move cursor to top-left and overwrite in place instead of clearing —
+    # avoids flicker at fast frame rates.
+    sys.stdout.write('\033[H' + frame)
+    sys.stdout.flush()
+ 
+def clear_once():
     os.system('cls' if os.name == 'nt' else 'clear')
-
-# ── Frames ────────────────────────────────────────────────
-# Each string in this list is one frame. Add/edit frames to
-# make your own animation — just keep them roughly the same
-# size so nothing jumps around on screen.
-
-frames = [
+ 
+ 
+verse_frames = [
 r"""
-
-
 -===++================------------:::-----:::*+%@@@@@@%%%%@@@@@@@@@@@@@%%%%%%@%@%%%%@@%@%%#--=-==-=-==:.::.-:-:---------===+*######************************
 ===---:--=++*****#######******+++++++++++===-*+%@@@@@@@@@@@@@@@@@@@@@@@@%%#*+--=====-=-==-----:-=-::-:::-:........::--==+**#***++**************+++++*++**+*
 +==---------==++**#######**********************#*+++++++++++++==+==================---=----------::---=---::::......-=*###########********++++*++++++++++++
@@ -456,25 +463,26 @@ r"""
 
 ]
 
-
-
+sections = [
+    ("verse", verse_frames, VERSE_DELAY),
+    ("chorus", chorus_frames, CHORUS_DELAY),
+]
+ 
 def play():
+    start = time.time()
+    clear_once()
     try:
-        for frame in frames:
-            clear()
-            print(frame)
-            time.sleep(FRAME_DELAY)
-        clear()
-        print(blastoff)
-        time.sleep(1.2)
+        while True:
+            for name, frames, delay in sections:
+                for frame in frames:
+                    redraw(frame)
+                    time.sleep(delay)
+                    if TRACK_LENGTH_SECONDS and (time.time() - start) >= TRACK_LENGTH_SECONDS:
+                        return
     except KeyboardInterrupt:
-        clear()
+        clear_once()
         print("Animation stopped.")
         sys.exit(0)
-
+ 
 if __name__ == "__main__":
-    if LOOP:
-        while True:
-            play()
-    else:
-        play()
+    play()
